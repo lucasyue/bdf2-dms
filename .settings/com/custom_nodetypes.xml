@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<nodeTypes xmlns:dms="http://www.bsdn.org/2.0" xmlns:fn="http://www.w3.org/2005/xpath-functions"
+	xmlns:fn_old="http://www.w3.org/2004/10/xpath-functions" xmlns:jcr="http://www.jcp.org/jcr/1.0"
+	xmlns:mix="http://www.jcp.org/jcr/mix/1.0" xmlns:nt="http://www.jcp.org/jcr/nt/1.0"
+	xmlns:rep="internal" xmlns:sv="http://www.jcp.org/jcr/sv/1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<nodeType hasOrderableChildNodes="false" isAbstract="false"
+		isMixin="false" isQueryable="true" name="dms:resource"
+		primaryItemName="">
+		<supertypes>
+			<supertype>mix:versionable</supertype>
+			<supertype>nt:base</supertype>
+			<supertype>nt:resource</supertype>
+		</supertypes>
+		<propertyDefinition autoCreated="false"
+			isFullTextSearchable="true" isQueryOrderable="true" mandatory="true"
+			multiple="false" name="dms:size" onParentVersion="COPY" protected="false"
+			requiredType="Long" />
+		<propertyDefinition autoCreated="false"
+			isFullTextSearchable="true" isQueryOrderable="true" mandatory="false"
+			multiple="false" name="dms:versionComment" onParentVersion="COPY"
+			protected="false" requiredType="String" />
+		<propertyDefinition autoCreated="false"
+			isFullTextSearchable="true" isQueryOrderable="true" mandatory="true"
+			multiple="false" name="dms:author" onParentVersion="COPY" protected="false"
+			requiredType="String" />
+		<propertyDefinition autoCreated="false"
+			isFullTextSearchable="true" isQueryOrderable="true" mandatory="false"
+			multiple="false" name="dms:fileName" onParentVersion="COPY" protected="false"
+			requiredType="String" />
+	</nodeType>
+	<nodeType hasOrderableChildNodes="false" isAbstract="false"
+		isMixin="false" isQueryable="true" name="dms:folder" primaryItemName="">
+		<supertypes>
+			<supertype>mix:lockable</supertype>
+			<supertype>mix:referenceable</supertype>
+			<supertype>nt:base</supertype>
+			<supertype>nt:folder</supertype>
+		</supertypes>
+		<propertyDefinition autoCreated="false"
+			isFullTextSearchable="true" isQueryOrderable="true" mandatory="false"
+			multiple="false" name="dms:originalPath" onParentVersion="COPY"
+			protected="false" requiredType="String" />
+		<propertyDefinition autoCreated="false"
+			isFullTextSearchable="true" isQueryOrderable="true" mandatory="false"
+			multiple="false" name="dms:icon" onParentVersion="COPY" protected="false"
+			requiredType="String" />
+		<propertyDefinition autoCreated="false"
+			isFullTextSearchable="true" isQueryOrderable="true" mandatory="true"
+			multiple="false" name="dms:name" onParentVersion="COPY" protected="false"
+			requiredType="String" />
+		<propertyDefinition autoCreated="false"
+			isFullTextSearchable="true" isQueryOrderable="true" mandatory="true"
+			multiple="false" name="dms:author" onParentVersion="COPY" protected="false"
+			requiredType="String" />
+		<childNodeDefinition autoCreated="false"
+			defaultPrimaryType="" mandatory="false" name="dms:accessControlled"
+			onParentVersion="COPY" protected="false" sameNameSiblings="true">
+			<requiredPrimaryTypes>
+				<requiredPrimaryType>dms:accessControlled</requiredPrimaryType>
+			</requiredPrimaryTypes>
+		</childNodeDefinition>
+	</nodeType>
+	<nodeType hasOrderableChildNodes="false" isAbstract="false"
+		isMixin="true" isQueryable="true" name="dms:accessControlled"
+		primaryItemName="">
+		<supertypes>
+			<supertype>nt:base</supertype>
+			<supertype>nt:unstructured</supertype>
+		</supertypes>
+		<propertyDefinition autoCreated="false"
+			isFullTextSearchable="true" isQueryOrderable="true" mandatory="true"
+			multiple="false" name="dms:authRolesDelete" onParentVersion="COPY"
+			protected="false" requiredType="String" />
+		<propertyDefinition autoCreated="false"
+			isFullTextSearchable="true" isQueryOrderable="true" mandatory="true"
+			multiple="false" name="dms:authRolesRead" onParentVersion="COPY"
+			protected="false" requiredType="String" />
+		<propertyDefinition autoCreated="false"
+			isFullTextSearchable="true" isQueryOrderable="true" mandatory="true"
+			multiple="false" name="dms:authUsersWrite" onParentVersion="COPY"
+			protected="false" requiredType="String" />
+		<propertyDefinition autoCreated="false"
+			isFullTextSearchable="true" isQueryOrderable="true" mandatory="true"
+			multiple="false" name="dms:authRolesSecurity" onParentVersion="COPY"
+			protected="false" requiredType="String" />
+		<propertyDefinition autoCreated="false"
+			isFullTextSearchable="true" isQueryOrderable="true" mandatory="true"
+			multiple="false" name="dms:authRolesWrite" onParentVersion="COPY"
+			protected="false" requiredType="String" />
+		<propertyDefinition autoCreated="false"
+			isFullTextSearchable="true" isQueryOrderable="true" mandatory="true"
+			multiple="false" name="dms:authUsersRead" onParentVersion="COPY"
+			protected="false" requiredType="String" />
+		<propertyDefinition autoCreated="false"
+			isFullTextSearchable="true" isQueryOrderable="true" mandatory="true"
+			multiple="false" name="dms:authUsersSecurity" onParentVersion="COPY"
+			protected="false" requiredType="String" />
+		<propertyDefinition autoCreated="false"
+			isFullTextSearchable="true" isQueryOrderable="true" mandatory="true"
+			multiple="false" name="dms:authUsersDelete" onParentVersion="COPY"
+			protected="false" requiredType="String" />
+	</nodeType>
+	<nodeType hasOrderableChildNodes="false" isAbstract="false"
+		isMixin="false" isQueryable="true" name="dms:document"
+		primaryItemName="dms:content">
+		<supertypes>
+			<supertype>mix:lockable</supertype>
+			<supertype>mix:referenceable</supertype>
+			<supertype>nt:base</supertype>
+			<supertype>nt:hierarchyNode</supertype>
+		</supertypes>
+		<propertyDefinition autoCreated="false"
+			isFullTextSearchable="true" isQueryOrderable="true" mandatory="false"
+			multiple="false" name="dms:folderUUID" onParentVersion="COPY"
+			protected="false" requiredType="String" />
+		<propertyDefinition autoCreated="false"
+			isFullTextSearchable="true" isQueryOrderable="true" mandatory="true"
+			multiple="false" name="dms:author" onParentVersion="COPY" protected="false"
+			requiredType="String" />
+		<propertyDefinition autoCreated="false"
+			isFullTextSearchable="true" isQueryOrderable="true" mandatory="false"
+			multiple="true" name="dms:tags" onParentVersion="COPY" protected="false"
+			requiredType="String" />
+		<propertyDefinition autoCreated="false"
+			isFullTextSearchable="true" isQueryOrderable="true" mandatory="true"
+			multiple="true" name="dms:keywords" onParentVersion="COPY" protected="false"
+			requiredType="String" />
+		<propertyDefinition autoCreated="false"
+			isFullTextSearchable="true" isQueryOrderable="true" mandatory="true"
+			multiple="false" name="dms:name" onParentVersion="COPY" protected="false"
+			requiredType="String" />
+		<propertyDefinition autoCreated="false"
+			isFullTextSearchable="true" isQueryOrderable="true" mandatory="false"
+			multiple="false" name="dms:icon" onParentVersion="COPY" protected="false"
+			requiredType="String" />
+		<propertyDefinition autoCreated="false"
+			isFullTextSearchable="true" isQueryOrderable="true" mandatory="true"
+			multiple="false" name="dms:mimeType" onParentVersion="COPY"
+			protected="false" requiredType="String" />
+		<childNodeDefinition autoCreated="false"
+			defaultPrimaryType="" mandatory="false" name="dms:accessControlled"
+			onParentVersion="COPY" protected="false" sameNameSiblings="true">
+			<requiredPrimaryTypes>
+				<requiredPrimaryType>dms:accessControlled</requiredPrimaryType>
+			</requiredPrimaryTypes>
+		</childNodeDefinition>
+		<childNodeDefinition autoCreated="false"
+			defaultPrimaryType="" mandatory="true" name="dms:content"
+			onParentVersion="COPY" protected="false" sameNameSiblings="false">
+			<requiredPrimaryTypes>
+				<requiredPrimaryType>dms:resource</requiredPrimaryType>
+			</requiredPrimaryTypes>
+		</childNodeDefinition>
+	</nodeType>
+</nodeTypes>

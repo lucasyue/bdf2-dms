@@ -1,0 +1,38 @@
+<nt = 'http://www.jcp.org/jcr/nt/1.0'>
+<jcr = 'http://www.jcp.org/jcr/1.0'>
+<mix = 'http://www.jcp.org/jcr/mix/1.0'>
+<dms = 'http://www.bsdn.org/2.0'>
+
+[dms:accessControlled] mixin
+- dms:authUsersRead (string)  mandatory
+- dms:authUsersWrite (string)  mandatory
+- dms:authUsersDelete (string) mandatory
+- dms:authUsersSecurity (string) mandatory
+- dms:authRolesRead (string) mandatory
+- dms:authRolesWrite (string) mandatory
+- dms:authRolesDelete (string) mandatory
+- dms:authRolesSecurity (string) mandatory
+
+[dms:resource] > nt:resource, mix:versionable
+- dms:size (long) mandatory
+- dms:author (string) mandatory
+- dms:fileName (string) mandatory
+- dms:versionComment (string) copy
+
+[dms:folder] > nt:folder, mix:referenceable, mix:lockable
+- dms:author (string) mandatory
+- dms:name (string) mandatory
+- dms:icon (string)
+- dms:originalPath (string)
++ dms:accessControlled (dms:accessControlled) multiple
+
+[dms:document] > nt:hierarchyNode, mix:referenceable, mix:lockable
+- dms:author (string) mandatory
+- dms:name (string) mandatory
+- dms:icon (string)
+- dms:folderUUID (string) mandatory
+- dms:keywords (string) multiple mandatory
+- dms:tags (string) multiple
+- dms:mimeType (string) mandatory
++ dms:content (dms:resource) primary mandatory
++ dms:accessControlled (dms:accessControlled) multiple

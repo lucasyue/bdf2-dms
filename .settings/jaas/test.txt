@@ -1,0 +1,3 @@
+JaasSample{
+  com.bstek.bdf2.dms.security.auth.DefaultLoginModule required debug=false;
+};

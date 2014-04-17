@@ -1,0 +1,740 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ViewConfig>
+  <Arguments/>
+  <Context>
+    <Attribute name="pageInfo"/>
+  </Context>
+  <Model>
+    <DataType name="dataTypeFolder">
+      <Property name="creationType">com.bstek.bdf2.dms.model.Folder</Property>
+      <PropertyDef name="uuid">
+        <Property name="dataType">String</Property>
+        <Property name="label">UUID</Property>
+      </PropertyDef>
+      <PropertyDef name="author">
+        <Property name="dataType">String</Property>
+        <Property name="label">作者</Property>
+      </PropertyDef>
+      <PropertyDef name="name">
+        <Property name="dataType">String</Property>
+        <Property name="required">true</Property>
+        <Property name="label">名称</Property>
+        <Validator type="required"/>
+      </PropertyDef>
+      <PropertyDef name="icon">
+        <Property name="dataType">String</Property>
+        <Property name="label">图标</Property>
+      </PropertyDef>
+      <PropertyDef name="path">
+        <Property name="dataType">String</Property>
+        <Property name="label">存储路径</Property>
+        <Validator type="regExp">
+          <Property name="whiteRegExp">^/[A-Za-z0-9_-]+$</Property>
+          <Property name="resultMessage">以/开头的只能包含字母数字下划线的字符串</Property>
+        </Validator>
+        <Validator type="length">
+          <Property name="minLength">2</Property>
+          <Property name="maxLength">60</Property>
+          <Property name="resultMessage">存储路径字段长度需在2~60之间</Property>
+        </Validator>
+        <Validator type="ajax">
+          <Property name="service">dms.documentManager#checkFolderPathUnique</Property>
+          <Property name="runAt">client</Property>
+        </Validator>
+      </PropertyDef>
+      <PropertyDef name="originalPath">
+        <Property name="dataType">String</Property>
+        <Property name="label">上级路径</Property>
+      </PropertyDef>
+      <PropertyDef name="storePath">
+        <Property name="dataType">String</Property>
+        <Property name="label">存储路径</Property>
+      </PropertyDef>
+      <PropertyDef name="createDate">
+        <Property name="dataType">Date</Property>
+        <Property name="label">创建时间</Property>
+        <Property name="displayFormat">Y-m-d H:i:s</Property>
+      </PropertyDef>
+      <PropertyDef name="lastModified">
+        <Property name="dataType">Date</Property>
+        <Property name="label">最后修改时间</Property>
+        <Property name="displayFormat">Y-m-d H:i:s</Property>
+      </PropertyDef>
+      <Reference name="children">
+        <Property name="dataType">[SELF]</Property>
+        <Property name="dataProvider">dms.documentManager#findChildren</Property>
+        <Property name="parameter">$${this.storePath}</Property>
+      </Reference>
+      <Reference name="documents">
+        <ClientEvent name="beforeLoadData">var doc = view.get(&quot;#autoFormDocumentSearch.entity&quot;);&#xD;
+if(doc.formQuery=='currentFolder'){&#xD;
+	self.set('parameter',{&#xD;
+		folderUUID:view.get(&quot;#dataSetFolder&quot;).getData('!currentFolder.uuid'),&#xD;
+		params:doc&#xD;
+	});	&#xD;
+	view.set(&quot;#autoFormDocumentSearch.entity&quot;,{});&#xD;
+} else if(doc.formQuery=='allFolder'){&#xD;
+	self.set('parameter',{&#xD;
+		folderUUID:null,&#xD;
+		params:doc&#xD;
+	});	&#xD;
+	view.set(&quot;#autoFormDocumentSearch.entity&quot;,{});&#xD;
+}else {&#xD;
+	self.set('parameter',{&#xD;
+		folderUUID:view.get(&quot;#dataSetFolder&quot;).getData('!currentFolder.uuid'),&#xD;
+		params:{&#xD;
+			'pageNo':view.docPageNo&#xD;
+		}&#xD;
+	});	&#xD;
+}</ClientEvent>
+        <ClientEvent name="onLoadData">view.set(&quot;#tlbPageInfo.text&quot;,view.get(&quot;context.pageInfo&quot;));</ClientEvent>
+        <Property name="dataProvider">dms.documentManager#findDocumentsByFolder</Property>
+        <Property name="dataType">[dataTypeDocument]</Property>
+        <Property name="parameter">$${this.uuid}</Property>
+        <Property name="pageSize">30</Property>
+        <Property name="cacheMode">bothSides</Property>
+      </Reference>
+    </DataType>
+    <DataType name="dataTypeDocument">
+      <Property name="creationType">com.bstek.bdf2.dms.model.Document</Property>
+      <PropertyDef name="uuid">
+        <Property name="dataType">String</Property>
+        <Property name="label">UUID</Property>
+      </PropertyDef>
+      <PropertyDef name="path">
+        <Property name="dataType">String</Property>
+        <Property name="label">存储路径</Property>
+      </PropertyDef>
+      <PropertyDef name="author">
+        <Property name="dataType">String</Property>
+        <Property name="label">作者</Property>
+      </PropertyDef>
+      <PropertyDef name="name">
+        <Property name="dataType">String</Property>
+        <Property name="label">名称</Property>
+      </PropertyDef>
+      <PropertyDef name="folderUUID">
+        <Property name="dataType">String</Property>
+        <Property name="label">所属文件夹UUID</Property>
+      </PropertyDef>
+      <PropertyDef name="mimeType">
+        <Property name="dataType">String</Property>
+        <Property name="label">MIME类型</Property>
+      </PropertyDef>
+      <PropertyDef name="createDate">
+        <Property name="dataType">Date</Property>
+        <Property name="label">创建时间</Property>
+        <Property name="displayFormat">Y-m-d H:i:s</Property>
+      </PropertyDef>
+      <PropertyDef name="lastModifiedDate">
+        <Property name="dataType">Date</Property>
+        <Property name="label">最后修改时间</Property>
+        <Property name="displayFormat">Y-m-d H:i:s</Property>
+      </PropertyDef>
+    </DataType>
+  </Model>
+  <View>
+    <ClientEvent name="onReady">self.docPageNo=1;</ClientEvent>
+    <DataSet id="dataSetFolder">
+      <Property name="dataType">[dataTypeFolder]</Property>
+      <Property name="dataProvider">dms.documentManager#findFolders</Property>
+    </DataSet>
+    <Dialog id="dialogDocumentSearch">
+      <Property name="center">true</Property>
+      <Property name="caption">文档查询</Property>
+      <Property name="width">400</Property>
+      <Property name="height">180</Property>
+      <Property name="modal">true</Property>
+      <Buttons>
+        <Button>
+          <ClientEvent name="onClick">var entity = view.get(&quot;#autoFormDocumentSearch.entity&quot;);&#xD;
+var uuid=entity.uuid;&#xD;
+if(entity.uuid||entity.name||entity.path){&#xD;
+	entity.formQuery='allFolder';//currentFolder&#xD;
+	view.get(&quot;#dataSetFolder&quot;).getData(&quot;!currentFolder&quot;).reset('documents');&#xD;
+	view.get(&quot;#dialogDocumentSearch&quot;).hide();&#xD;
+}	else {&#xD;
+	dorado.MessageBox.alert(&quot;查询条件不能为空&quot;);&#xD;
+}</ClientEvent>
+          <Property name="caption">查询</Property>
+          <Property name="icon">url(skin>common/icons.gif) -282px -261px</Property>
+        </Button>
+      </Buttons>
+      <Children>
+        <AutoForm id="autoFormDocumentSearch">
+          <Property name="cols">*</Property>
+          <AutoFormElement>
+            <Property name="name">uuid</Property>
+            <Property name="label">文档UUID</Property>
+            <Editor/>
+          </AutoFormElement>
+          <AutoFormElement>
+            <Property name="label">文档名称</Property>
+            <Property name="name">name</Property>
+            <Editor/>
+          </AutoFormElement>
+          <AutoFormElement>
+            <Property name="label">文档存储路径</Property>
+            <Property name="name">path</Property>
+            <Property name="visible">false</Property>
+            <Property name="hideMode">display</Property>
+            <Editor/>
+          </AutoFormElement>
+        </AutoForm>
+      </Children>
+      <Tools/>
+    </Dialog>
+    <SplitPanel>
+      <Property name="position">22%</Property>
+      <MainControl>
+        <Container>
+          <ToolBar id="toolBarDocument">
+            <Property name="hideMode">display</Property>
+            <ToolBarButton id="tlbClearTrash">
+              <ClientEvent name="onClick">var doc = view.get(&quot;#dataSetFolder&quot;).getData(&quot;!currentFolder.#documents&quot;);&#xD;
+if(doc){&#xD;
+	dorado.MessageBox.confirm(&quot;您确定彻底删除回收站中所有文档吗？&quot;,function(){&#xD;
+		view.get(&quot;#ajaxActionDeleteTrashDocument&quot;).execute(function(){&#xD;
+			view.get(&quot;#dataSetFolder&quot;).getData(&quot;!currentFolder&quot;).reset(&quot;documents&quot;);&#xD;
+		});&#xD;
+	});&#xD;
+} else {&#xD;
+	dorado.MessageBox.alert(&quot;没有文档！&quot;);&#xD;
+}</ClientEvent>
+              <Property name="caption">清空回收站</Property>
+              <Property name="icon">url(>skin>common/icons.gif) -40px -0px</Property>
+              <Property name="visible">false</Property>
+            </ToolBarButton>
+            <ToolBarButton>
+              <Property name="caption">上传文档</Property>
+              <Property name="icon">url(>skin>common/icons.gif) -80px -20px</Property>
+              <Property name="action">uploadActionDocument</Property>
+            </ToolBarButton>
+            <Separator/>
+            <ToolBarButton>
+              <ClientEvent name="onClick">var docUUID = view.get(&quot;#dataSetFolder&quot;).getData(&quot;!currentFolder.#documents.uuid&quot;);&#xD;
+if(docUUID){&#xD;
+	var path = &quot;${request.getContextPath()}/dorado/dms-download/filedownload1.do?docUUID=&quot;+docUUID;&#xD;
+	var downloadFlag = &quot;${session.getAttribute('DOWNLOAD_FLAG')}&quot;;&#xD;
+	if(downloadFlag == &quot;DOWNLOAD_FALSE&quot;){&#xD;
+		view.get(&quot;#dialogDocumentDownload&quot;).show();&#xD;
+		view.set(&quot;#iFrameDocumentDownload.path&quot;,path);&#xD;
+	} else {&#xD;
+		window.location.href = path;&#xD;
+	}&#xD;
+} else {&#xD;
+	dorado.MessageBox.alert(&quot;没有要下载的文档。&quot;);&#xD;
+}</ClientEvent>
+              <Property name="caption">下载文档</Property>
+              <Property name="icon">url(>skin>common/icons.gif) -220px -80px</Property>
+            </ToolBarButton>
+            <Separator/>
+            <ToolBarButton>
+              <ClientEvent name="onClick">var selection = view.get(&quot;#dataGridDocument.selection&quot;);&#xD;
+if(selection &amp;&amp; selection.length>0){&#xD;
+	dorado.MessageBox.confirm(&quot;您确定要删除选择的文档吗？&quot;,function(){&#xD;
+		var docPaths=[];&#xD;
+		selection.each(function(doc){&#xD;
+			docPaths.push(doc.get(&quot;path&quot;));&#xD;
+			doc.remove();&#xD;
+		});&#xD;
+		view.get(&quot;#ajaxActionDeleteDocument&quot;).set(&quot;parameter&quot;,docPaths).execute(function(){&#xD;
+			view.get(&quot;#dataSetFolder&quot;).getData(&quot;*[@.get('path')=='/dms:root/dms:trash']&quot;).reset(&quot;documents&quot;);&#xD;
+		});&#xD;
+	});&#xD;
+} else {&#xD;
+	dorado.MessageBox.alert(&quot;请选择要删除的文档！&quot;);&#xD;
+}</ClientEvent>
+              <Property name="caption">删除文档</Property>
+              <Property name="icon">url(>skin>common/icons.gif) -140px -0px</Property>
+            </ToolBarButton>
+            <Separator/>
+            <ToolBarButton>
+              <ClientEvent name="onClick">if(view.get(&quot;#dataSetFolder&quot;).getData(&quot;!currentFolder.#documents&quot;)){&#xD;
+	view.get(&quot;#dialogDocumentProperty&quot;).show();&#xD;
+} else {&#xD;
+	dorado.MessageBox.alert(&quot;没有文档！&quot;);&#xD;
+}</ClientEvent>
+              <Property name="caption">文档属性</Property>
+              <Property name="icon">url(>skin>common/icons.gif) -100px -20px</Property>
+            </ToolBarButton>
+            <Separator/>
+            <ToolBarButton>
+              <ClientEvent name="onClick">view.get(&quot;#dialogDocumentSearch&quot;).show();</ClientEvent>
+              <Property name="caption">查询</Property>
+              <Property name="icon">url(skin>common/icons.gif) -42px -101px</Property>
+            </ToolBarButton>
+            <Separator/>
+            <ToolBarLabel id="tlbPageInfo">
+              <Property name="text">${context.pageInfo}</Property>
+            </ToolBarLabel>
+            <Separator/>
+            <ToolBarButton id="tlbLastPage">
+              <ClientEvent name="onClick" signature="self,arg,dataSetFolder">folder=dataSetFolder.getData(&quot;!currentFolder&quot;);&#xD;
+if(view.docPageNo>1){&#xD;
+ 	view.docPageNo=view.docPageNo-1;&#xD;
+	folder.reset('documents');&#xD;
+	view.set(&quot;#tlbPageInfo.text&quot;,view.get(&quot;context.pageInfo&quot;));&#xD;
+}</ClientEvent>
+              <Property name="caption">上一页</Property>
+              <Property name="icon">url(>skin>common/icons.gif) -160px -220px</Property>
+            </ToolBarButton>
+            <Separator/>
+            <ToolBarButton id="tlbNextPage">
+              <ClientEvent name="onClick" signature="self,arg,dataSetFolder">folder=dataSetFolder.getData(&quot;!currentFolder&quot;);&#xD;
+list = folder.get('documents');&#xD;
+if(list&amp;&amp;list.entityCount>0){&#xD;
+	pageCountStr=(list.entityCount-1)/list.pageSize+1;&#xD;
+	pageCount=parseInt(pageCountStr);&#xD;
+	if(view.docPageNo&lt;pageCount){&#xD;
+		view.docPageNo=view.docPageNo+1;&#xD;
+		folder.reset('documents');&#xD;
+		view.set(&quot;#tlbPageInfo.text&quot;,view.get(&quot;context.pageInfo&quot;));&#xD;
+	}&#xD;
+}</ClientEvent>
+              <Property name="caption">下一页</Property>
+              <Property name="icon">url(>skin>common/icons.gif) -180px -220px</Property>
+            </ToolBarButton>
+          </ToolBar>
+          <DataGrid id="dataGridDocument">
+            <Property name="dataSet">dataSetFolder</Property>
+            <Property name="dataPath">!currentFolder.documents</Property>
+            <Property name="readOnly">true</Property>
+            <Property name="selectionMode">multiRows</Property>
+            <RowNumColumn/>
+            <IndicatorColumn/>
+            <RowSelectorColumn>
+              <Property name="name">rowSelectorColumn</Property>
+            </RowSelectorColumn>
+            <DataColumn name="name">
+              <Property name="property">name</Property>
+            </DataColumn>
+            <DataColumn name="author">
+              <Property name="property">author</Property>
+            </DataColumn>
+            <DataColumn name="path">
+              <Property name="property">path</Property>
+            </DataColumn>
+            <DataColumn name="uuid">
+              <Property name="property">uuid</Property>
+              <Property name="visible">false</Property>
+            </DataColumn>
+            <DataColumn name="createDate">
+              <Property name="property">createDate</Property>
+            </DataColumn>
+            <DataColumn name="lastModifiedDate">
+              <Property name="property">lastModifiedDate</Property>
+            </DataColumn>
+          </DataGrid>
+          <UploadAction id="uploadActionDocument">
+            <ClientEvent name="beforeExecute">var folder = view.get(&quot;#dataSetFolder&quot;).getData(&quot;!currentFolder&quot;);&#xD;
+self.set(&quot;multipartParams&quot;,{&#xD;
+	folderUUID:folder.get(&quot;uuid&quot;),&#xD;
+	folderPath:folder.get(&quot;storePath&quot;)	&#xD;
+});</ClientEvent>
+            <ClientEvent name="onFileUploaded">var result = dorado.JSON.parse(arg.response.response);&#xD;
+if(result&amp;&amp;result.result){&#xD;
+	view.get(&quot;#dataSetFolder&quot;).getData(&quot;!currentFolder&quot;).reset(&quot;documents&quot;);&#xD;
+} else {&#xD;
+	dorado.MessageBox.alert(result.message);&#xD;
+}</ClientEvent>
+            <Property name="url">dorado/dms-upload/fileupload1.do</Property>
+            <Property name="maxFileSize">10MB</Property>
+            <Property name="autoUpload">true</Property>
+            <Filters/>
+          </UploadAction>
+          <AjaxAction id="ajaxActionDeleteDocument">
+            <Property name="service">dms.documentManager#deleteDocuments</Property>
+            <Property name="successMessage">操作成功。</Property>
+          </AjaxAction>
+          <AjaxAction id="ajaxActionCheckDocumentUnique">
+            <Property name="service">dms.documentManager#checkDocumentUnique</Property>
+          </AjaxAction>
+          <AjaxAction id="ajaxActionDeleteTrashDocument">
+            <Property name="service">dms.documentManager#deleteTrashDocument</Property>
+            <Property name="successMessage">操作成功</Property>
+          </AjaxAction>
+          <Dialog id="dialogDocumentDownload">
+            <Property name="center">true</Property>
+            <Property name="modal">true</Property>
+            <Property name="width">300</Property>
+            <Property name="height">230</Property>
+            <Property name="caption">下载</Property>
+            <Buttons>
+              <Button>
+                <ClientEvent name="onClick">view.get(&quot;#dialogDocumentDownload&quot;).hide();&#xD;
+</ClientEvent>
+                <Property name="icon">url(>skin>common/icons.gif) -40px -0px</Property>
+                <Property name="caption">关闭</Property>
+              </Button>
+            </Buttons>
+            <Children>
+              <IFrame id="iFrameDocumentDownload"/>
+            </Children>
+            <Tools/>
+          </Dialog>
+          <Dialog id="dialogDocumentProperty">
+            <Property name="center">true</Property>
+            <Property name="caption">文档属性查看</Property>
+            <Property name="width">450</Property>
+            <Property name="height">270</Property>
+            <Property name="modal">true</Property>
+            <Buttons>
+              <Button>
+                <ClientEvent name="onClick">view.get(&quot;#dialogDocumentProperty&quot;).hide();</ClientEvent>
+                <Property name="icon">url(>skin>common/icons.gif) -40px -0px</Property>
+                <Property name="caption">关闭</Property>
+              </Button>
+            </Buttons>
+            <Children>
+              <AutoForm id="autoFormDocumentProperty">
+                <Property name="dataSet">dataSetFolder</Property>
+                <Property name="dataPath">!currentFolder.#documents</Property>
+                <Property name="cols">*</Property>
+                <Property name="showHintMessage">true</Property>
+                <Property name="readOnly">true</Property>
+                <AutoFormElement>
+                  <Property name="name">uuid</Property>
+                  <Property name="property">uuid</Property>
+                  <Editor/>
+                </AutoFormElement>
+                <AutoFormElement>
+                  <Property name="name">name</Property>
+                  <Property name="property">name</Property>
+                  <Editor/>
+                </AutoFormElement>
+                <AutoFormElement>
+                  <Property name="name">author</Property>
+                  <Property name="property">author</Property>
+                  <Editor/>
+                </AutoFormElement>
+                <AutoFormElement>
+                  <Property name="name">path</Property>
+                  <Property name="property">path</Property>
+                  <Editor/>
+                </AutoFormElement>
+                <AutoFormElement>
+                  <Property name="name">folderUUID</Property>
+                  <Property name="property">folderUUID</Property>
+                  <Editor/>
+                </AutoFormElement>
+                <AutoFormElement>
+                  <Property name="name">mimeType</Property>
+                  <Property name="property">mimeType</Property>
+                  <Editor/>
+                </AutoFormElement>
+              </AutoForm>
+            </Children>
+            <Tools/>
+          </Dialog>
+        </Container>
+      </MainControl>
+      <SideControl>
+        <Container>
+          <DataTree id="dataTreeFolder">
+            <ClientEvent name="onContextMenu">view.get(&quot;#menuFolder&quot;).show({&#xD;
+	position:{&#xD;
+		left:arg.event.pageX,&#xD;
+		top :arg.event.pageY&#xD;
+	}&#xD;
+});</ClientEvent>
+            <ClientEvent name="onDataRowClick">var currentFolder = view.get(&quot;#dataSetFolder&quot;).getData(&quot;!currentFolder&quot;);&#xD;
+var folderStorePath=currentFolder.get(&quot;storePath&quot;);&#xD;
+var items = view.get(&quot;#toolBarDocument.items&quot;)&#xD;
+if(folderStorePath==&quot;/dms:root/dms:trash&quot;){&#xD;
+	items.each(function(item){&#xD;
+		itemId=item.get(&quot;id&quot;);&#xD;
+		if(&quot;tlbClearTrash&quot;==itemId||&quot;tlbPageInfo&quot;==itemId||&quot;tlbLastPage&quot;==itemId||&quot;tlbNextPage&quot;==itemId){&#xD;
+			item.set(&quot;visible&quot;,true);			&#xD;
+		}else {&#xD;
+			item.set(&quot;visible&quot;,false);&#xD;
+		}&#xD;
+	});&#xD;
+	view.get(&quot;#dataGridDocument&quot;).getColumn(&quot;rowSelectorColumn&quot;).set(&quot;visible&quot;,false);&#xD;
+} else {&#xD;
+	items.each(function(item){&#xD;
+		if(&quot;tlbClearTrash&quot;==item.get(&quot;id&quot;)){&#xD;
+			item.set(&quot;visible&quot;,false);			&#xD;
+		}else {&#xD;
+			item.set(&quot;visible&quot;,true);&#xD;
+		}&#xD;
+	});&#xD;
+	view.get(&quot;#dataGridDocument&quot;).getColumn(&quot;rowSelectorColumn&quot;).set(&quot;visible&quot;,true);&#xD;
+}</ClientEvent>
+            <Property name="dataSet">dataSetFolder</Property>
+            <Property name="currentNodeDataPath">currentFolder</Property>
+            <BindingConfigs>
+              <BindingConfig>
+                <Property name="childrenProperty">children</Property>
+                <Property name="expandLevel">3</Property>
+                <Property name="hasChild">true</Property>
+                <Property name="labelProperty">name</Property>
+                <Property name="recursive">true</Property>
+                <Property name="iconProperty">icon</Property>
+              </BindingConfig>
+            </BindingConfigs>
+          </DataTree>
+          <Menu id="menuFolder">
+            <MenuItem>
+              <ClientEvent name="onClick">var dataSetFolder = view.get(&quot;#dataSetFolder&quot;);&#xD;
+var currentNode = view.get(&quot;#dataTreeFolder.currentNode&quot;);&#xD;
+if(currentNode.get(&quot;level&quot;) &lt; 2){&#xD;
+	dorado.MessageBox.alert(&quot;顶层节点不允许新建文件夹&quot;);&#xD;
+}else{	&#xD;
+	var currentFolder = dataSetFolder.getData(&quot;!currentFolder&quot;);&#xD;
+	if(currentFolder){&#xD;
+		newFolder = currentFolder.createBrother({'originalPath':currentFolder.get('originalPath')});&#xD;
+	} else {&#xD;
+		newFolder = dataSetFolder.insert({});&#xD;
+	}&#xD;
+	view.get(&quot;#dataTreeFolder&quot;).set(&quot;currentEntity&quot;,newFolder);&#xD;
+	view.get(&quot;#dialogFolder&quot;).show();&#xD;
+	view.set(&quot;#autoFormFolderPath.readOnly&quot;,false);&#xD;
+}</ClientEvent>
+              <Property name="caption">新建文件夹</Property>
+              <Property name="icon">url(>skin>common/icons.gif) -120px -0px</Property>
+            </MenuItem>
+            <Separator/>
+            <MenuItem>
+              <ClientEvent name="onClick">var dataSetFolder = view.get(&quot;#dataSetFolder&quot;);&#xD;
+var currentFolder = dataSetFolder.getData(&quot;!currentFolder&quot;);&#xD;
+if(currentFolder){&#xD;
+	if(currentFolder.get(&quot;storePath&quot;)==&quot;/dms:root/dms:trash&quot;){&#xD;
+		dorado.MessageBox.alert(&quot;回收站不允许创建文件夹&quot;);&#xD;
+	} else {&#xD;
+		var newFolder = currentFolder.createChild(&quot;children&quot;,{&#xD;
+					originalPath:currentFolder.get(&quot;storePath&quot;)&#xD;
+				});&#xD;
+		view.get(&quot;#dataTreeFolder&quot;).get(&quot;currentNode&quot;).expand();&#xD;
+		view.get(&quot;#dataTreeFolder&quot;).set(&quot;currentEntity&quot;,newFolder);&#xD;
+		view.get(&quot;#dialogFolder&quot;).show();&#xD;
+		view.set(&quot;#autoFormFolderPath.readOnly&quot;,false);&#xD;
+&#xD;
+	}&#xD;
+} else {&#xD;
+	dorado.MessageBox.alert(&quot;请先新建一个文件夹！&quot;);&#xD;
+}</ClientEvent>
+              <Property name="caption">新建子文件夹</Property>
+              <Property name="icon">url(>skin>common/icons.gif) -0px -260px</Property>
+            </MenuItem>
+            <Separator/>
+            <MenuItem>
+              <ClientEvent name="onClick">var currentNode = view.get(&quot;#dataTreeFolder.currentNode&quot;);&#xD;
+if(currentNode.get(&quot;level&quot;) &lt; 2){&#xD;
+	//dorado.MessageBox.alert(&quot;&quot;);&#xD;
+} else {&#xD;
+	view.get(&quot;#dialogFolder&quot;).show();&#xD;
+	view.set(&quot;#autoFormFolderPath.readOnly&quot;,true);&#xD;
+}</ClientEvent>
+              <Property name="caption">修改文件夹</Property>
+              <Property name="icon">url(>skin>common/icons.gif) -200px -0px</Property>
+            </MenuItem>
+            <Separator/>
+            <MenuItem>
+              <ClientEvent name="onClick">var dataSetFolder = view.get(&quot;#dataSetFolder&quot;);&#xD;
+var currentFolder = dataSetFolder.getData(&quot;!currentFolder&quot;);&#xD;
+if(currentFolder){&#xD;
+	var currentNode = view.get(&quot;#dataTreeFolder.currentNode&quot;);&#xD;
+	if(currentNode.get(&quot;level&quot;) &lt; 2){&#xD;
+		dorado.MessageBox.alert(&quot;[&quot;+currentFolder.get(&quot;name&quot;)+&quot;]不允许删除&quot;);&#xD;
+	} else {&#xD;
+		var children = dataSetFolder.getData(&quot;!currentFolder.children&quot;);&#xD;
+		var documents = dataSetFolder.getData(&quot;!currentFolder.documents&quot;);&#xD;
+		if(!children.isEmpty()){&#xD;
+			dorado.MessageBox.alert(&quot;请先删除子文件夹！&quot;);&#xD;
+		} else if(!documents.isEmpty()){&#xD;
+			dorado.MessageBox.alert(&quot;请先删除文件夹下的所有文件！&quot;);&#xD;
+		} else {&#xD;
+			dorado.MessageBox.confirm(&quot;您确定要删除该文件夹吗？&quot;,function(){&#xD;
+				currentFolder.remove();&#xD;
+				view.get(&quot;#updateActionFolder&quot;).execute();&#xD;
+			});&#xD;
+		}&#xD;
+	}&#xD;
+} else {&#xD;
+	dorado.MessageBox.alert(&quot;没有要删除的文件夹！&quot;);&#xD;
+}</ClientEvent>
+              <Property name="caption">删除文件夹</Property>
+              <Property name="icon">url(>skin>common/icons.gif) -140px -0px</Property>
+            </MenuItem>
+            <Separator/>
+            <MenuItem>
+              <ClientEvent name="onClick">view.get(&quot;#dataSetFolder&quot;).getData(&quot;!currentFolder&quot;).reset(&quot;documents&quot;);</ClientEvent>
+              <Property name="caption">刷新文件夹</Property>
+              <Property name="icon">url(>skin>common/icons.gif) -40px -240px</Property>
+            </MenuItem>
+            <Separator/>
+            <MenuItem>
+              <ClientEvent name="onClick">view.get(&quot;#dialogFolderProperty&quot;).show();&#xD;
+</ClientEvent>
+              <Property name="icon">url(>skin>common/icons.gif) -100px -20px</Property>
+              <Property name="caption">属性</Property>
+            </MenuItem>
+          </Menu>
+          <Dialog id="dialogFolder">
+            <ClientEvent name="onHide">view.get(&quot;#dataSetFolder&quot;).getData(&quot;!currentFolder&quot;).cancel();</ClientEvent>
+            <Property name="center">true</Property>
+            <Property name="caption">文件夹编辑</Property>
+            <Property name="width">550</Property>
+            <Property name="height">230</Property>
+            <Property name="modal">true</Property>
+            <Buttons>
+              <Button>
+                <ClientEvent name="onClick">view.get(&quot;#updateActionFolder&quot;).execute(function(){&#xD;
+	view.get(&quot;#dialogFolder&quot;).hide();&#xD;
+	var currentFolder = view.get(&quot;#dataSetFolder&quot;).getData('!currentFolder');&#xD;
+	try{&#xD;
+		 currentFolder.disableObservers();&#xD;
+		 originalPath = currentFolder.get('originalPath');&#xD;
+		 path = currentFolder.get('path');&#xD;
+		 currentFolder.set('storePath',originalPath+path);&#xD;
+	}finally{&#xD;
+		currentFolder.enableObservers();&#xD;
+		currentFolder.notifyObservers();&#xD;
+	}&#xD;
+});</ClientEvent>
+                <Property name="icon">url(>skin>common/icons.gif) -140px -20px</Property>
+                <Property name="caption">保存</Property>
+              </Button>
+              <Button>
+                <ClientEvent name="onClick">view.get(&quot;#dataSetFolder&quot;).getData(&quot;!currentFolder&quot;).cancel();&#xD;
+view.get(&quot;#dialogFolder&quot;).hide();</ClientEvent>
+                <Property name="icon">url(>skin>common/icons.gif) -40px -0px</Property>
+                <Property name="caption">取消</Property>
+              </Button>
+            </Buttons>
+            <Children>
+              <AutoForm id="autoFormFolder">
+                <Property name="dataSet">dataSetFolder</Property>
+                <Property name="dataPath">!currentFolder</Property>
+                <Property name="cols">*,*</Property>
+                <Property name="showHintMessage">true</Property>
+                <AutoFormElement layoutConstraint="colSpan:2">
+                  <Property name="name">name</Property>
+                  <Property name="property">name</Property>
+                  <Editor/>
+                </AutoFormElement>
+                <AutoFormElement>
+                  <Property name="name">originalPath</Property>
+                  <Property name="property">originalPath</Property>
+                  <Property name="readOnly">true</Property>
+                  <Property name="label">存储路径</Property>
+                  <Property name="showHint">false</Property>
+                  <Editor/>
+                </AutoFormElement>
+                <AutoFormElement id="autoFormFolderPath">
+                  <Property name="name">path</Property>
+                  <Property name="property">path</Property>
+                  <Property name="showHintMessage">true</Property>
+                  <Property name="showLabel">true</Property>
+                  <Property name="labelWidth">15</Property>
+                  <Property name="label">+</Property>
+                  <Property name="labelSeparator"> </Property>
+                  <Editor>
+                    <TextEditor>
+                      <Property name="blankText">以/开头的字符串</Property>
+                    </TextEditor>
+                  </Editor>
+                </AutoFormElement>
+                <AutoFormElement layoutConstraint="colSpan:2">
+                  <Property name="property">icon</Property>
+                  <Property name="name">icon</Property>
+                  <Property name="trigger">triggerIconSelect</Property>
+                  <Editor/>
+                </AutoFormElement>
+              </AutoForm>
+            </Children>
+            <Tools/>
+          </Dialog>
+          <UpdateAction id="updateActionFolder">
+            <Property name="dataResolver">dms.documentManager#saveFolders</Property>
+            <UpdateItem>
+              <Property name="dataSet">dataSetFolder</Property>
+            </UpdateItem>
+          </UpdateAction>
+          <Dialog id="dialogFolderProperty">
+            <Property name="center">true</Property>
+            <Property name="caption">文件夹属性查看</Property>
+            <Property name="width">450</Property>
+            <Property name="height">320</Property>
+            <Property name="modal">true</Property>
+            <Buttons>
+              <Button>
+                <ClientEvent name="onClick">view.get(&quot;#dialogFolderProperty&quot;).hide();&#xD;
+</ClientEvent>
+                <Property name="icon">url(>skin>common/icons.gif) -40px -0px</Property>
+                <Property name="caption">关闭</Property>
+              </Button>
+            </Buttons>
+            <Children>
+              <AutoForm id="autoFormFolderProperty">
+                <Property name="dataSet">dataSetFolder</Property>
+                <Property name="dataPath">!currentFolder</Property>
+                <Property name="cols">*</Property>
+                <Property name="showHintMessage">true</Property>
+                <Property name="readOnly">true</Property>
+                <AutoFormElement>
+                  <Property name="name">uuid</Property>
+                  <Property name="property">uuid</Property>
+                  <Editor/>
+                </AutoFormElement>
+                <AutoFormElement>
+                  <Property name="name">name</Property>
+                  <Property name="property">name</Property>
+                  <Editor/>
+                </AutoFormElement>
+                <AutoFormElement>
+                  <Property name="name">author</Property>
+                  <Property name="property">author</Property>
+                  <Editor/>
+                </AutoFormElement>
+                <AutoFormElement>
+                  <Property name="name">storePath</Property>
+                  <Property name="property">storePath</Property>
+                  <Property name="hint">/defaultFolder/testDoc</Property>
+                  <Property name="showHintMessage">true</Property>
+                  <Editor>
+                    <TextEditor>
+                      <Property name="blankText">/defaultFolder/testDoc</Property>
+                    </TextEditor>
+                  </Editor>
+                </AutoFormElement>
+                <AutoFormElement>
+                  <Property name="name">originalPath</Property>
+                  <Property name="property">originalPath</Property>
+                  <Editor/>
+                </AutoFormElement>
+                <AutoFormElement>
+                  <Property name="property">icon</Property>
+                  <Property name="name">icon</Property>
+                  <Property name="trigger">triggerIconSelect</Property>
+                  <Editor/>
+                </AutoFormElement>
+                <AutoFormElement>
+                  <Property name="name">createDate</Property>
+                  <Property name="property">createDate</Property>
+                  <Editor/>
+                </AutoFormElement>
+                <AutoFormElement>
+                  <Property name="name">lastModified</Property>
+                  <Property name="property">lastModified</Property>
+                  <Editor/>
+                </AutoFormElement>
+              </AutoForm>
+            </Children>
+            <Tools/>
+          </Dialog>
+          <Trigger id="triggerIconSelect">
+            <ClientEvent name="onExecute">var dialog=view.get(&quot;#$dialogSelectIcon&quot;);&#xD;
+dialog.callback=function(url){&#xD;
+	var entity=view.get(&quot;#dataSetFolder&quot;).getData(&quot;!currentFolder&quot;);&#xD;
+	entity.set(&quot;icon&quot;,url);&#xD;
+};&#xD;
+dialog.show();</ClientEvent>
+          </Trigger>
+          <Import src="bdf2.core.view.IconSelect#$dialogSelectIcon"/>
+        </Container>
+      </SideControl>
+    </SplitPanel>
+  </View>
+</ViewConfig>
